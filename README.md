@@ -1,16 +1,86 @@
-# frotter
+# HOME GO
 
-A new Flutter project.
+家政婦・ベビーシッターなど生活サポートスタッフを探せる
+マッチングアプリを想定して開発したモバイルアプリです。
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 概要
 
-A few resources to get you started if this is your first Flutter project:
+HOME GO は、家事代行スタッフやベビーシッターなど
+生活サポートサービスを必要としている利用者が、
+条件に合ったスタッフを探せることを目的としたアプリです。
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+仕事内容・得意分野・料金・対応エリアなどを
+分かりやすく表示し、ユーザーが直感的に
+サポート人材を見つけられるUIを意識して制作しました。
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## 使用技術
+
+* Flutter
+* Dart
+* Git
+* GitHub
+
+---
+
+## 主な機能
+
+* サポートスタッフ一覧表示
+* スタッフ詳細プロフィール表示
+* 条件に応じた検索（想定）
+* お気に入り保存機能
+* カード型UIによる分かりやすい画面構成
+
+---
+
+## アプリ画面（スクリーンショット）
+
+ここにアプリ画面を掲載予定
+
+例
+
+* ホーム画面
+* スタッフ一覧画面
+* 詳細プロフィール画面
+
+---
+
+## 工夫したポイント
+
+* 初めて利用する人でも迷わないシンプルなUI設計
+* 情報を整理したカード型レイアウト
+* 家事代行・ベビーシッターなど用途別に探しやすい画面構成
+
+---
+
+## 今後追加予定の機能
+
+* ログイン機能
+* チャット機能
+* 予約機能
+* レビュー機能
+* 地図連携
+
+---
+
+## インストール方法
+
+```bash
+git clone https://github.com/baitoyou1129-star/HOME-GO.git
+cd HOME-GO
+flutter pub get
+flutter run
+```
+
+---
+
+## 開発者
+
+翔也 河野
+
+Flutterを使用したモバイルアプリ開発を学習中。
+GitHubでアプリ開発のポートフォリオを公開しています。
+
