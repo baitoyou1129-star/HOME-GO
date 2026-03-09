@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "709267168568",
+    "project_id": "ru-musapo",
+    "storage_bucket": "ru-musapo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:709267168568:android:87fd64a5737bfbc1fff5cd",
+        "android_client_info": {
+          "package_name": "com.example.frotter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "709267168568-q2cp494gb7hd8e67frgnd0644otkqkdu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.frotter",
+            "certificate_hash": "ae16c807d55b3430bd05ec161a4ec371ab64357c"
+          }
+        },
+        {
+          "client_id": "709267168568-njs2gibo5kr8nin2dqd83hc2bl2dqk9p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQM6krrqI1ny-LDvWvnslM7coGjtzLTN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "709267168568-njs2gibo5kr8nin2dqd83hc2bl2dqk9p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,274 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum BookingStatus {
+  requested
+  accepted
+  cancelled
+  completed
+}
+
+enum LedgerStatus {
+  unpaid
+  paid
+  waived
+}
+
+enum ReportTargetType {
+  user
+  booking
+  message
+  review
+}
+
+enum ReportStatus {
+  open
+  in_progress
+  closed
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  action    String
+  userId    String?
+  bookingId String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
+  @@index([bookingId, createdAt])
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  isAdmin     Boolean  @default(false)
+  isSuspended Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  profile         Profile?
+  providerProfile ProviderProfile?
+
+  clientBookings   Booking[] @relation("ClientBookings")
+  providerBookings Booking[] @relation("ProviderBookings")
+
+  chatMessages     ChatMessage[]
+  chatParticipants ChatParticipant[]
+
+  authoredReviews Review[] @relation("AuthoredReviews")
+  targetReviews   Review[] @relation("TargetReviews")
+
+  reports   Report[]
+  auditLogs AuditLog[]
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  displayName String
+  bio         String   @default("")
+  areaPref    String?
+  areaCity    String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([areaPref, areaCity])
+}
+
+model AuthCode {
+  id         String    @id @default(cuid())
+  email      String
+  codeHash   String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  consumedAt DateTime?
+
+  @@index([email])
+  @@index([expiresAt])
+}
+
+model ProviderProfile {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  displayName      String
+  bio              String   @default("")
+  areaPref         String? // 都道府県（任意）
+  areaCity         String? // 市区町村（任意）
+  availabilityNote String   @default("")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  services ProviderService[]
+
+  @@index([areaPref, areaCity])
+}
+
+model ServiceCategory {
+  id   String @id @default(cuid())
+  slug String @unique
+  name String
+
+  providerServices ProviderService[]
+  bookings         Booking[]
+}
+
+model ProviderService {
+  id              String   @id @default(cuid())
+  providerId      String
+  categoryId      String
+  priceYenPerHour Int
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  provider ProviderProfile @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@unique([providerId, categoryId])
+  @@index([categoryId, isActive])
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  status          BookingStatus @default(requested)
+  scheduledAt     DateTime
+  durationMinutes Int           @default(120)
+  locationText    String
+  notes           String        @default("")
+
+  priceYenEstimated Int?
+  priceYenFinal     Int?
+
+  clientId   String
+  providerId String
+  categoryId String
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  cancelledAt  DateTime?
+  cancelReason String?
+
+  clientMarkedCompleteAt   DateTime?
+  providerMarkedCompleteAt DateTime?
+  completedAt              DateTime?
+
+  client   User            @relation("ClientBookings", fields: [clientId], references: [id], onDelete: Restrict)
+  provider User            @relation("ProviderBookings", fields: [providerId], references: [id], onDelete: Restrict)
+  category ServiceCategory @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  chatThread ChatThread?
+  review     Review?
+  ledger     CommissionLedger?
+
+  auditLogs AuditLog[]
+
+  @@index([clientId, createdAt])
+  @@index([providerId, createdAt])
+  @@index([status, scheduledAt])
+}
+
+model ChatThread {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  createdAt DateTime @default(now())
+
+  booking      Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  participants ChatParticipant[]
+  messages     ChatMessage[]
+}
+
+model ChatParticipant {
+  id         String    @id @default(cuid())
+  threadId   String
+  userId     String
+  lastReadAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([threadId, userId])
+  @@index([userId, updatedAt])
+}
+
+model ChatMessage {
+  id        String   @id @default(cuid())
+  threadId  String
+  senderId  String
+  body      String
+  createdAt DateTime @default(now())
+
+  thread ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  sender User       @relation(fields: [senderId], references: [id], onDelete: Restrict)
+
+  @@index([threadId, createdAt])
+}
+
+model Review {
+  id           String   @id @default(cuid())
+  bookingId    String   @unique
+  authorId     String
+  targetUserId String
+  rating       Int
+  comment      String   @default("")
+  isHidden     Boolean  @default(false)
+  hiddenReason String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  author  User    @relation("AuthoredReviews", fields: [authorId], references: [id], onDelete: Restrict)
+  target  User    @relation("TargetReviews", fields: [targetUserId], references: [id], onDelete: Restrict)
+
+  @@index([targetUserId, createdAt])
+  @@index([isHidden, createdAt])
+}
+
+model CommissionLedger {
+  id             String       @id @default(cuid())
+  bookingId      String       @unique
+  amountYen      Int
+  commissionRate Float        @default(0.10)
+  commissionYen  Int
+  status         LedgerStatus @default(unpaid)
+  adminNote      String?
+  createdAt      DateTime     @default(now())
+  paidAt         DateTime?
+  updatedAt      DateTime     @updatedAt
+
+  booking Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+}
+
+model Report {
+  id         String           @id @default(cuid())
+  reporterId String
+  targetType ReportTargetType
+  targetId   String
+  reason     String
+  details    String           @default("")
+  status     ReportStatus     @default(open)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  reporter User @relation(fields: [reporterId], references: [id], onDelete: Restrict)
+
+  @@index([status, createdAt])
+  @@index([targetType, targetId])
+}

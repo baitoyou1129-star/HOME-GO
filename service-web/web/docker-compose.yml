@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16
+    container_name: home-go-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: homego
+    ports:
+      - "5432:5432"
+    volumes:
+      - homego_pgdata:/var/lib/postgresql/data
+
+volumes:
+  homego_pgdata:
+
